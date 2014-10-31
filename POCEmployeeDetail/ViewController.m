@@ -8,13 +8,16 @@
 
 #import "ViewController.h"
 #import <QuartzCore/QuartzCore.h>
+#import "PrefixHeader.pch"
 
 @interface ViewController ()<UIScrollViewDelegate, UIActionSheetDelegate, UITextFieldDelegate>{
     UIActionSheet *pickerViewActionSheet;
     UIDatePicker *datePicker;
     UIToolbar *pickerToolbar;
-
+    CGFloat animatedDistance;
+    UIView *dateView;
 }
+@property (strong, nonatomic) IBOutlet UIScrollView *scrollView;
 @property (strong, nonatomic) IBOutlet UILabel *employeeLabel;
 @property (strong, nonatomic) IBOutlet UITextField *firstNameTextField;
 @property (strong, nonatomic) IBOutlet UILabel *invalidAlertFirstNameLabel;
@@ -30,19 +33,31 @@
 @property (strong, nonatomic) IBOutlet UILabel *invalidAlertCompanyNameLabel;
 @property (strong, nonatomic) IBOutlet UITextView *companyAddressTextView;
 
+
 @end
 
 
 @implementation ViewController
 
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    [self StyleTextView];
-    	// Do any additional setup after loading the view, typically from a nib.
+    [self styleTextView];
+    
+   	// Do any additional setup after loading the view, typically from a nib.
 }
 
--(void)StyleTextView {
+-(void)dismissKeyboard {
+    for(UIView *views in self.scrollView.subviews){
+        if(([views isKindOfClass:[UITextField class]] ||[views
+                                                         isKindOfClass:[UITextView class]]) && [views isFirstResponder]){
+            [views resignFirstResponder];
+        }
+    }
+}
+
+-(void)styleTextView {
     [[self.addressTextView layer] setBorderColor:[[UIColor grayColor] CGColor]];
     [[self.addressTextView layer] setBorderWidth:0.2];
     
@@ -53,6 +68,10 @@
     [[self.companyAddressTextView layer] setCornerRadius:5];
 }
 
+- (void)viewDidLayoutSubviews {
+    [self.scrollView setContentSize:CGSizeMake(self.view.frame.size.width, self.view.frame.size.width + 200.0)];
+}
+
 -(void)viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
     self.firstNameTextField.delegate = self;
@@ -60,21 +79,20 @@
     self.dateOfBirthTextField.delegate = self;
     self.companyNameTextField.delegate = self;
     [self hideAllInvalidAlerts];
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc]
+                                   initWithTarget:self
+                                   action:@selector(dismissKeyboard)];
+    [self.view addGestureRecognizer:tap];
     
 }
+
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
 
--(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event{
-    for(UIView *views in self.view.subviews){
-        if([views isKindOfClass:[UITextField class]] && [views isFirstResponder]){
-            [views resignFirstResponder];
-        }
-    }
-}
+
 
 -(BOOL)textFieldShouldReturn:(UITextField *)textField{
     return YES;
@@ -114,6 +132,7 @@
 
 -(void)textFieldDidBeginEditing:(UITextField *)textField
 {
+    [self bringTextFieldVisible:textField];
     if(textField == self.dateOfBirthTextField)
     {
         datePicker = [[UIDatePicker alloc] init];
@@ -122,7 +141,25 @@
         if([[[UIDevice currentDevice] systemVersion] floatValue ] >= platformVersion){
            
             //TODO : iOS8 date picker
+            dateView = [[UIView alloc] initWithFrame:CGRectMake(0, self.view.frame.size.height/2.0, 320, 640)];
+            pickerToolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, 320, 44)];
+            pickerToolbar.barStyle=UIBarStyleBlackOpaque;
+            [pickerToolbar sizeToFit];
+            NSMutableArray *barItems = [[NSMutableArray alloc] init];
+            UIBarButtonItem *barButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(dateChosen:)];
+            [barItems addObject:barButtonItem];
+            barButtonItem.tag = 123;
+            [pickerToolbar setItems:barItems animated:YES];
+            [dateView addSubview:pickerToolbar];
+            datePicker = [[UIDatePicker alloc] initWithFrame:CGRectMake(0.0, 44.0, 320.0, 300.0)];
+            datePicker.datePickerMode = UIDatePickerModeDate;
+            [datePicker addTarget:self action:@selector(dateChanged) forControlEvents:UIControlEventValueChanged];
+            datePicker.backgroundColor = [UIColor whiteColor];
+            [dateView addSubview:datePicker];
             
+            
+            [self.view addSubview:dateView];
+
         }
         else {
             [textField resignFirstResponder];
@@ -137,6 +174,7 @@
             datePicker = [[UIDatePicker alloc] initWithFrame:CGRectMake(0.0, 44.0, 320.0, 300.0)];
             datePicker.datePickerMode = UIDatePickerModeDate;
             [datePicker addTarget:self action:@selector(dateChanged) forControlEvents:UIControlEventValueChanged];
+            datePicker.tag = -1;
             pickerToolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, 320, 44)];
             pickerToolbar.barStyle=UIBarStyleBlackOpaque;
             [pickerToolbar sizeToFit];
@@ -154,6 +192,76 @@
         
     }
     
+    
+}
+
+-(void) dateChosen:(UIBarButtonItem *) barButton {
+    if(barButton.tag ==123){
+        [dateView removeFromSuperview];
+        
+    }
+   
+}
+
+-(void)bringTextFieldVisible:(UITextField *)textField {
+    CGRect textFieldRect =
+    [self.view.window convertRect:textField.bounds fromView:textField];
+    CGRect viewRect =
+    [self.view.window convertRect:self.view.bounds fromView:self.view];
+    
+    CGFloat midline = textFieldRect.origin.y + 0.5 * textFieldRect.size.height;
+    CGFloat numerator =
+    midline - viewRect.origin.y
+    - MINIMUM_SCROLL_FRACTION * viewRect.size.height;
+    CGFloat denominator =
+    (MAXIMUM_SCROLL_FRACTION - MINIMUM_SCROLL_FRACTION)
+    * viewRect.size.height;
+    CGFloat heightFraction = numerator / denominator;
+    
+    if (heightFraction < 0.0)
+    {
+        heightFraction = 0.0;
+    }
+    else if (heightFraction > 1.0)
+    {
+        heightFraction = 1.0;
+    }
+    
+    UIInterfaceOrientation orientation =
+    [[UIApplication sharedApplication] statusBarOrientation];
+    if (orientation == UIInterfaceOrientationPortrait ||
+        orientation == UIInterfaceOrientationPortraitUpsideDown)
+    {
+        animatedDistance = floor(PORTRAIT_KEYBOARD_HEIGHT * heightFraction);
+    }
+    else
+    {
+        animatedDistance = floor(LANDSCAPE_KEYBOARD_HEIGHT * heightFraction);
+    }
+    
+    CGRect viewFrame = self.scrollView.frame;
+    viewFrame.origin.y -= animatedDistance;
+    
+    [UIView beginAnimations:nil context:NULL];
+    [UIView setAnimationBeginsFromCurrentState:YES];
+    [UIView setAnimationDuration:KEYBOARD_ANIMATION_DURATION];
+    
+    [self.scrollView setFrame:viewFrame];
+    [UIView commitAnimations];
+}
+
+
+-(void)textFieldDidEndEditing:(UITextField *)textField{
+    CGRect viewFrame = self.scrollView.frame;
+    viewFrame.origin.y += animatedDistance;
+    
+    [UIView beginAnimations:nil context:NULL];
+    [UIView setAnimationBeginsFromCurrentState:YES];
+    [UIView setAnimationDuration:KEYBOARD_ANIMATION_DURATION];
+    
+    [self.scrollView setFrame:viewFrame];
+    
+    [UIView commitAnimations];
 }
 
 -(BOOL)checkForOnlyString:(NSString *) string{
@@ -162,17 +270,19 @@
     BOOL isValid = [nameValidation evaluateWithObject:string];
     return isValid;
 }
+
 -(void) hideAllInvalidAlerts {
     self.invalidAlertFirstNameLabel.hidden = YES;
     self.invalidAlertLastNameLabel.hidden = YES;
     self.invalidAlertDOBLabel.hidden = YES;
     self.invalidAlertCompanyNameLabel.hidden = YES;
 }
+
 -(void)dateChanged{
-    NSDateFormatter *FormatDate = [[NSDateFormatter alloc] init];
-    FormatDate = [[NSDateFormatter alloc] init];
-    [FormatDate setDateFormat:@"dd/MM/yyyy"];
-    self.dateOfBirthTextField.text = [FormatDate stringFromDate:[datePicker date]];
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"dd/MM/yyyy"];
+    self.dateOfBirthTextField.text = [dateFormatter stringFromDate:[datePicker date]];
 }
 
 -(BOOL)closeDatePicker:(id)sender{

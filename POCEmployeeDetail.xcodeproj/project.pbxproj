@@ -34,6 +34,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		F917E7821A02495300466FC8 /* PrefixHeader.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PrefixHeader.pch; sourceTree = "<group>"; };
 		F9687A6C1A00B8CA000D1CBA /* POCEmployeeDetail.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = POCEmployeeDetail.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F9687A6F1A00B8CA000D1CBA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		F9687A711A00B8CA000D1CBA /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -117,6 +118,7 @@
 				F9687A811A00B8CA000D1CBA /* Main.storyboard */,
 				F9687A841A00B8CA000D1CBA /* ViewController.h */,
 				F9687A851A00B8CA000D1CBA /* ViewController.m */,
+				F917E7821A02495300466FC8 /* PrefixHeader.pch */,
 				F9687A871A00B8CA000D1CBA /* Images.xcassets */,
 				F9687A761A00B8CA000D1CBA /* Supporting Files */,
 			);
@@ -456,6 +458,7 @@
 				F9687AA01A00B8CA000D1CBA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		F9687AA11A00B8CA000D1CBA /* Build configuration list for PBXNativeTarget "POCEmployeeDetailTests" */ = {
 			isa = XCConfigurationList;
@@ -464,6 +467,7 @@
 				F9687AA31A00B8CA000D1CBA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
