@@ -7,7 +7,10 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "Employee.h"
 
 @interface ViewController : UIViewController
-
+@property (nonatomic) BOOL isForAddingNewEmployee;
+@property (nonatomic) NSInteger employeeEntryIndex;
+@property (nonatomic) Employee *employeeData;
 @end

@@ -9,6 +9,8 @@
 #import "ViewController.h"
 #import <QuartzCore/QuartzCore.h>
 #import "PrefixHeader.pch"
+#import "DataManager.h"
+#import "Employee.h"
 
 @interface ViewController ()<UIScrollViewDelegate, UIActionSheetDelegate, UITextFieldDelegate>{
     UIActionSheet *pickerViewActionSheet;
@@ -32,12 +34,20 @@
 @property (strong, nonatomic) IBOutlet UITextField *companyNameTextField;
 @property (strong, nonatomic) IBOutlet UILabel *invalidAlertCompanyNameLabel;
 @property (strong, nonatomic) IBOutlet UITextView *companyAddressTextView;
+@property (strong, nonatomic) IBOutlet UIButton *submitButton;
+
+
+
+- (IBAction)submitButtonClicked:(id)sender;
+@property (strong, nonatomic) IBOutlet UIButton *cancelButton;
+- (IBAction)cancelButtonClicked:(id)sender;
 
 
 @end
 
 
 @implementation ViewController
+//@synthesize isForAddingNewEmployee;
 
 
 - (void)viewDidLoad
@@ -69,7 +79,7 @@
 }
 
 - (void)viewDidLayoutSubviews {
-    [self.scrollView setContentSize:CGSizeMake(self.view.frame.size.width, self.view.frame.size.width + 200.0)];
+    [self.scrollView setContentSize:CGSizeMake(self.view.frame.size.width, self.view.frame.size.width + 300)];
 }
 
 -(void)viewWillAppear:(BOOL)animated{
@@ -83,9 +93,24 @@
                                    initWithTarget:self
                                    action:@selector(dismissKeyboard)];
     [self.view addGestureRecognizer:tap];
+    if(self.isForAddingNewEmployee == NO){
+        
+    }
     
 }
 
+-(void)viewDidAppear:(BOOL)animated{
+    
+    if(self.isForAddingNewEmployee == NO){
+        
+        self.firstNameTextField.text =  self.employeeData.firstName;
+        self.lastNameTextField.text =  self.employeeData.lastName;
+        self.dateOfBirthTextField.text =  self.employeeData.dateOfBirth;
+        self.addressTextView.text =  self.employeeData.address;
+        self.companyNameTextField.text = [self.employeeData.companyDetail objectAtIndex:0];
+        self.companyAddressTextView.text = [self.employeeData.companyDetail objectAtIndex:1];
+    }
+}
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
@@ -192,7 +217,6 @@
         
     }
     
-    
 }
 
 -(void) dateChosen:(UIBarButtonItem *) barButton {
@@ -296,4 +320,19 @@
 }
 
 
+- (IBAction)submitButtonClicked:(id)sender {
+    Employee *employee = [[Employee alloc]init];
+    employee.firstName = self.firstNameTextField.text;
+    employee.lastName = self.lastNameTextField.text;
+    employee.address = self.lastNameTextField.text;
+    employee.companyDetail = [[NSMutableArray alloc]initWithObjects:self.companyNameTextField.text,self.companyAddressTextView.text, nil];
+    if(self.isForAddingNewEmployee == YES)
+    [[DataManager dataManager] addNewEmployee:employee];
+    else
+    [[DataManager dataManager] addNewEmployee:employee];
+    
+}
+- (IBAction)cancelButtonClicked:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
 @end

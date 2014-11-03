@@ -21,6 +21,9 @@
 		F9687A911A00B8CA000D1CBA /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F9687A731A00B8CA000D1CBA /* UIKit.framework */; };
 		F9687A991A00B8CA000D1CBA /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = F9687A971A00B8CA000D1CBA /* InfoPlist.strings */; };
 		F9687A9B1A00B8CA000D1CBA /* POCEmployeeDetailTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F9687A9A1A00B8CA000D1CBA /* POCEmployeeDetailTests.m */; };
+		F9E5BDE61A077578003BA2C0 /* DataManager.m in Sources */ = {isa = PBXBuildFile; fileRef = F9E5BDE51A077578003BA2C0 /* DataManager.m */; };
+		F9E5BDEC1A077E54003BA2C0 /* EmployeesTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F9E5BDEB1A077E54003BA2C0 /* EmployeesTableViewController.m */; };
+		F9E5BDEF1A07849F003BA2C0 /* Employee.m in Sources */ = {isa = PBXBuildFile; fileRef = F9E5BDEE1A07849F003BA2C0 /* Employee.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -54,6 +57,12 @@
 		F9687A961A00B8CA000D1CBA /* POCEmployeeDetailTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "POCEmployeeDetailTests-Info.plist"; sourceTree = "<group>"; };
 		F9687A981A00B8CA000D1CBA /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		F9687A9A1A00B8CA000D1CBA /* POCEmployeeDetailTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = POCEmployeeDetailTests.m; sourceTree = "<group>"; };
+		F9E5BDE41A077578003BA2C0 /* DataManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataManager.h; sourceTree = "<group>"; };
+		F9E5BDE51A077578003BA2C0 /* DataManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DataManager.m; sourceTree = "<group>"; };
+		F9E5BDEA1A077E54003BA2C0 /* EmployeesTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EmployeesTableViewController.h; sourceTree = "<group>"; };
+		F9E5BDEB1A077E54003BA2C0 /* EmployeesTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EmployeesTableViewController.m; sourceTree = "<group>"; };
+		F9E5BDED1A07849F003BA2C0 /* Employee.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Employee.h; sourceTree = "<group>"; };
+		F9E5BDEE1A07849F003BA2C0 /* Employee.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Employee.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -118,6 +127,12 @@
 				F9687A811A00B8CA000D1CBA /* Main.storyboard */,
 				F9687A841A00B8CA000D1CBA /* ViewController.h */,
 				F9687A851A00B8CA000D1CBA /* ViewController.m */,
+				F9E5BDE41A077578003BA2C0 /* DataManager.h */,
+				F9E5BDE51A077578003BA2C0 /* DataManager.m */,
+				F9E5BDEA1A077E54003BA2C0 /* EmployeesTableViewController.h */,
+				F9E5BDEB1A077E54003BA2C0 /* EmployeesTableViewController.m */,
+				F9E5BDED1A07849F003BA2C0 /* Employee.h */,
+				F9E5BDEE1A07849F003BA2C0 /* Employee.m */,
 				F917E7821A02495300466FC8 /* PrefixHeader.pch */,
 				F9687A871A00B8CA000D1CBA /* Images.xcassets */,
 				F9687A761A00B8CA000D1CBA /* Supporting Files */,
@@ -252,6 +267,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				F9687A861A00B8CA000D1CBA /* ViewController.m in Sources */,
+				F9E5BDE61A077578003BA2C0 /* DataManager.m in Sources */,
+				F9E5BDEC1A077E54003BA2C0 /* EmployeesTableViewController.m in Sources */,
+				F9E5BDEF1A07849F003BA2C0 /* Employee.m in Sources */,
 				F9687A801A00B8CA000D1CBA /* AppDelegate.m in Sources */,
 				F9687A7C1A00B8CA000D1CBA /* main.m in Sources */,
 			);
@@ -378,10 +396,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CLANG_ENABLE_MODULES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "POCEmployeeDetail/POCEmployeeDetail-Prefix.pch";
 				INFOPLIST_FILE = "POCEmployeeDetail/POCEmployeeDetail-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -391,9 +412,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CLANG_ENABLE_MODULES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "POCEmployeeDetail/POCEmployeeDetail-Prefix.pch";
 				INFOPLIST_FILE = "POCEmployeeDetail/POCEmployeeDetail-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
