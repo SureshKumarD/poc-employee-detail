@@ -40,6 +40,7 @@
 -(void) viewWillAppear:(BOOL)animated{
     [super viewWillAppear:NO];
     [self.tableView reloadData];
+    self.navigationController.navigationBar.hidden = NO;
     
 }
 
@@ -79,7 +80,7 @@
     }
     Employee *employee = [[DataManager dataManager].employees objectAtIndex:indexPath.row];
     cell.textLabel.text = employee.firstName;
-    cell.detailTextLabel.text = [employee.companyDetail objectAtIndex:0];
+    cell.detailTextLabel.text = employee.address;//[employee.companyDetail objectAtIndex:0];
     
     return cell;
     
@@ -143,9 +144,10 @@
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
     ViewController *viewController = segue.destinationViewController;
-    
+    viewController.employeeData = [[Employee alloc] init];
     if([segue.identifier isEqualToString:@"addNewEmployee"])
         viewController.isForAddingNewEmployee = YES;
+    
 }
 
 

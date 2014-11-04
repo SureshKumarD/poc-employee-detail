@@ -10,5 +10,8 @@
 
 @implementation Employee
 @synthesize firstName,lastName,dateOfBirth,address,companyDetail;
-
+-(id) init{
+    companyDetail = [[NSMutableArray alloc] init];
+    return self;
+}
 @end

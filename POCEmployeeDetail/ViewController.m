@@ -12,7 +12,7 @@
 #import "DataManager.h"
 #import "Employee.h"
 
-@interface ViewController ()<UIScrollViewDelegate, UIActionSheetDelegate, UITextFieldDelegate>{
+@interface ViewController ()<UIScrollViewDelegate, UIActionSheetDelegate, UITextFieldDelegate,UITableViewDataSource,UITableViewDelegate>{
     UIActionSheet *pickerViewActionSheet;
     UIDatePicker *datePicker;
     UIToolbar *pickerToolbar;
@@ -36,7 +36,9 @@
 @property (strong, nonatomic) IBOutlet UITextView *companyAddressTextView;
 @property (strong, nonatomic) IBOutlet UIButton *submitButton;
 
+@property (strong, nonatomic) IBOutlet UITableView *companyListTableView;
 
+- (IBAction)addCompanyButtonClicked:(id)sender;
 
 - (IBAction)submitButtonClicked:(id)sender;
 @property (strong, nonatomic) IBOutlet UIButton *cancelButton;
@@ -54,7 +56,7 @@
 {
     [super viewDidLoad];
     [self styleTextView];
-    
+    self.navigationController.navigationBar.hidden = YES;
    	// Do any additional setup after loading the view, typically from a nib.
 }
 
@@ -79,7 +81,7 @@
 }
 
 - (void)viewDidLayoutSubviews {
-    [self.scrollView setContentSize:CGSizeMake(self.view.frame.size.width, self.view.frame.size.width + 300)];
+    [self.scrollView setContentSize:CGSizeMake(self.view.frame.size.width, self.view.frame.size.height + 300)];
 }
 
 -(void)viewWillAppear:(BOOL)animated{
@@ -97,6 +99,7 @@
         
     }
     
+    
 }
 
 -(void)viewDidAppear:(BOOL)animated{
@@ -107,10 +110,10 @@
         self.lastNameTextField.text =  self.employeeData.lastName;
         self.dateOfBirthTextField.text =  self.employeeData.dateOfBirth;
         self.addressTextView.text =  self.employeeData.address;
-        self.companyNameTextField.text = [self.employeeData.companyDetail objectAtIndex:0];
-        self.companyAddressTextView.text = [self.employeeData.companyDetail objectAtIndex:1];
+
     }
 }
+
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
@@ -320,19 +323,65 @@
 }
 
 
+- (IBAction)addCompanyButtonClicked:(id)sender {
+    NSMutableArray *companyDetail = [[NSMutableArray alloc] initWithObjects:self.companyNameTextField.text, self.companyAddressTextView.text, nil];
+    self.employeeData.firstName = @" Suresh";
+    [self.employeeData.companyDetail addObject:companyDetail];
+    [self.companyListTableView reloadData];
+    
+}
+
 - (IBAction)submitButtonClicked:(id)sender {
+    //To avoid posting the same data multiple times.
+    self.submitButton.enabled = NO;
+    
+    //Get the local data to post into the global/server data
     Employee *employee = [[Employee alloc]init];
     employee.firstName = self.firstNameTextField.text;
     employee.lastName = self.lastNameTextField.text;
-    employee.address = self.lastNameTextField.text;
-    employee.companyDetail = [[NSMutableArray alloc]initWithObjects:self.companyNameTextField.text,self.companyAddressTextView.text, nil];
+    employee.dateOfBirth = self.dateOfBirthTextField.text;
+    employee.address = self.addressTextView.text;
+    employee.companyDetail = [self.employeeData.companyDetail mutableCopy];
+    
+    //If the submit is for new employee add, otherwise update.
     if(self.isForAddingNewEmployee == YES)
-    [[DataManager dataManager] addNewEmployee:employee];
+        [[DataManager dataManager] addNewEmployee:employee];
     else
-    [[DataManager dataManager] addNewEmployee:employee];
+        [[DataManager dataManager] updateEmployeeEntry:employee :self.employeeEntryIndex];
+    
+    [self.navigationController popViewControllerAnimated:YES];
     
 }
 - (IBAction)cancelButtonClicked:(id)sender {
     [self.navigationController popViewControllerAnimated:YES];
+}
+
+#pragma mark - TableView Datasource Methods
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return [self.employeeData.companyDetail count];
+}
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+    return 1;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    static NSString *CellIdentifier = @"companyDetailCell";
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"companyDetailCell" forIndexPath:indexPath];
+    
+    if (cell == nil) {
+        cell = [[UITableViewCell alloc]initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:CellIdentifier];
+    }
+    
+    cell.textLabel.text = [[self.employeeData.companyDetail objectAtIndex:indexPath.row] objectAtIndex:0];
+    cell.detailTextLabel.text = [[self.employeeData.companyDetail objectAtIndex:indexPath.row] objectAtIndex:1];
+    
+    return cell;
+    
+}
+-(void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath{
+    if(editingStyle == UITableViewCellEditingStyleDelete){
+        [self.employeeData.companyDetail removeObjectAtIndex:indexPath.row];
+        [self.companyListTableView reloadData];
+    }
 }
 @end
