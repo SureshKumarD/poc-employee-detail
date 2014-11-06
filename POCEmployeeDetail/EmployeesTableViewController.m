@@ -80,7 +80,7 @@
     }
     Employee *employee = [[DataManager dataManager].employees objectAtIndex:indexPath.row];
     cell.textLabel.text = employee.firstName;
-    cell.detailTextLabel.text = employee.address;//[employee.companyDetail objectAtIndex:0];
+    cell.detailTextLabel.text = employee.address;
     
     return cell;
     
