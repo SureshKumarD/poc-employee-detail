@@ -9,9 +9,8 @@
 #import "Employee.h"
 
 @implementation Employee
-@synthesize firstName,lastName,dateOfBirth,address,companyDetail;
--(id) init{
-    companyDetail = [[NSMutableArray alloc] init];
-    return self;
-}
+@dynamic empFirstName,empLastName,empDOB,empAddress;
+@dynamic companyDetail;
+
 @end
+

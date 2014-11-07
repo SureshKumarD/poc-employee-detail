@@ -9,5 +9,5 @@
 #import <UIKit/UIKit.h>
 
 @interface EmployeesTableViewController : UITableViewController<UITableViewDataSource, UITableViewDelegate>
-
+@property (strong) NSMutableArray *employees;
 @end

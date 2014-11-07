@@ -10,13 +10,14 @@
 #import "DataManager.h"
 #import "Employee.h"
 #import "ViewController.h"
+#import <CoreData/CoreData.h>
 
 @interface EmployeesTableViewController ()<UITableViewDataSource, UITableViewDelegate>
-
+@property(nonatomic,strong) NSMutableArray *companyDetails;
 @end
 
 @implementation EmployeesTableViewController
-
+@synthesize employees = _employees;
 - (id)initWithStyle:(UITableViewStyle)style
 {
     self = [super initWithStyle:style];
@@ -36,14 +37,23 @@
     
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
+   
 }
 -(void) viewWillAppear:(BOOL)animated{
     [super viewWillAppear:NO];
+        self.navigationController.navigationBar.hidden = NO;
+    NSManagedObjectContext *managedObjectContext = [self managedObjectContext];
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Employees"];
+    self.employees = [[managedObjectContext executeFetchRequest:fetchRequest error:nil] mutableCopy];
     [self.tableView reloadData];
-    self.navigationController.navigationBar.hidden = NO;
-    
+
 }
 
+-(void)viewDidAppear:(BOOL)animated{
+    [super viewDidAppear:animated];
+   
+    
+}
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
@@ -63,7 +73,7 @@
 {
 //#warning Incomplete method implementation.
     // Return the number of rows in the section.
-    return [[DataManager dataManager].employees count];
+    return [self.employees count];
 }
 
 
@@ -78,9 +88,9 @@
     if (cell == nil) {
         cell = [[UITableViewCell alloc]initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:CellIdentifier];
     }
-    Employee *employee = [[DataManager dataManager].employees objectAtIndex:indexPath.row];
-    cell.textLabel.text = employee.firstName;
-    cell.detailTextLabel.text = employee.address;
+    Employee *employee = [self.employees objectAtIndex:indexPath.row];
+    cell.textLabel.text = [employee valueForKey:@"empFirstName"];
+    cell.detailTextLabel.text = [employee valueForKey:@"empAddress"];
     
     return cell;
     
@@ -92,7 +102,7 @@
 
     viewController.employeeEntryIndex = [indexPath row];
     viewController.isForAddingNewEmployee = NO;
-    viewController.employeeData = [[DataManager dataManager].employees objectAtIndex:indexPath.row];
+    viewController.employeeData = [self.employees objectAtIndex:indexPath.row];
     [self.navigationController pushViewController:viewController animated:YES];
     
 }
@@ -151,5 +161,14 @@
 }
 
 
-
+- (NSManagedObjectContext *)managedObjectContext
+{
+    NSManagedObjectContext *context = nil;
+    id delegate = [[UIApplication sharedApplication] delegate];
+    if ([delegate performSelector:@selector(managedObjectContext)])
+    {
+        context = [delegate managedObjectContext];
+    }
+    return context;
+}
 @end

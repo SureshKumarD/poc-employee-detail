@@ -7,14 +7,17 @@
 //
 
 #import <Foundation/Foundation.h>
-
-@interface Employee : NSObject{
-    NSString *firstName,*lastName,*dateOfBirth,*address;
-    NSMutableArray *companyDetail;
+#import <CoreData/CoreData.h>
+@interface Employee : NSManagedObject{
+    NSString *empFirstName,*empLastName,*empDOB,*empAddress;
+    id companyDetail;
 }
-@property (nonatomic, strong) NSString *firstName;
-@property (nonatomic, strong) NSString *lastName;
-@property (nonatomic, strong) NSString *dateOfBirth;
-@property (nonatomic, strong) NSString *address;
-@property (nonatomic, strong) NSMutableArray *companyDetail;
+@property (nonatomic, strong) NSString *empFirstName;
+@property (nonatomic, strong) NSString *empLastName;
+@property (nonatomic, strong) NSString *empDOB;
+@property (nonatomic, strong) NSString *empAddress;
+@property (nonatomic, strong) id companyDetail;
+
 @end
+
+

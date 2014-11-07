@@ -13,4 +13,5 @@
 @property (nonatomic) BOOL isForAddingNewEmployee;
 @property (nonatomic) NSInteger employeeEntryIndex;
 @property (nonatomic) Employee *employeeData;
+@property(strong,nonatomic) NSMutableArray *companyDetailArray;
 @end
