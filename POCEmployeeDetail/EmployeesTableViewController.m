@@ -154,7 +154,6 @@
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
     ViewController *viewController = segue.destinationViewController;
-    viewController.employeeData = [[Employee alloc] init];
     if([segue.identifier isEqualToString:@"addNewEmployee"])
         viewController.isForAddingNewEmployee = YES;
     

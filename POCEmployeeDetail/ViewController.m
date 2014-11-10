@@ -11,7 +11,6 @@
 #import <CoreData/CoreData.h>
 #import "PrefixHeader.pch"
 #import "DataManager.h"
-#import "Employee.h"
 #import "CompanyDetail.h"
 
 @interface ViewController ()<UIScrollViewDelegate, UIActionSheetDelegate, UITextFieldDelegate, UITextViewDelegate, UITableViewDataSource,UITableViewDelegate>{
@@ -33,41 +32,50 @@
 @property (strong, nonatomic) IBOutlet UITextView *addressTextView;
 
 @property (strong, nonatomic) IBOutlet UILabel *companyDetailLabel;
+
 @property (strong, nonatomic) IBOutlet UITextField *companyNameTextField;
 @property (strong, nonatomic) IBOutlet UILabel *invalidAlertCompanyNameLabel;
 @property (strong, nonatomic) IBOutlet UITextView *companyAddressTextView;
-@property (strong, nonatomic) IBOutlet UIButton *submitButton;
+
+@property (strong, nonatomic) IBOutlet UILabel *addCompanyLabel;
+@property (strong, nonatomic) IBOutlet UILabel *companyAddressLabel;
 
 @property (strong, nonatomic) IBOutlet UITableView *companyListTableView;
-@property (strong, nonatomic) IBOutlet UIButton *addButton;
+@property (strong, nonatomic) IBOutlet UIBarButtonItem *addCompanyOption;
+@property (weak,nonatomic) IBOutlet NSLayoutConstraint *tableHeightConstraint;
 
 - (IBAction)addCompanyButtonClicked:(id)sender;
 
-- (IBAction)submitButtonClicked:(id)sender;
-@property (strong, nonatomic) IBOutlet UIButton *cancelButton;
-- (IBAction)cancelButtonClicked:(id)sender;
-
+@property (strong, nonatomic) IBOutlet UIButton *addButton;
+//@property (strong, nonatomic) UIButton *submitButton;
+//@property (strong, nonatomic) UIButton *cancelButton;
+- (void) submitButtonClicked:(id)sender;
+- (void) cancelButtonClicked:(id)sender;
+- (void) enableFieldsForEdit:(id)sender;
 @property (atomic) CGFloat contentOffsetHeight;
-
+@property (nonatomic) BOOL isEdited;
 @end
 
 
 @implementation ViewController
-//@synthesize isForAddingNewEmployee;
+@synthesize companyDetailArray = _companyDetailArray;
 
 #pragma mark - UIViewController Delegate Methods
 
-- (void)viewDidLoad
-{
+- (void)viewDidLoad {
     [super viewDidLoad];
     [self styleTextView];
-    if(self.isForAddingNewEmployee == NO){
+    if(self.isForAddingNewEmployee == NO) {
         self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]initWithTitle:@"Edit" style:UIBarButtonItemStylePlain target:self action:@selector(enableFieldsForEdit:)];
 
     }
+    else {
+        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]initWithTitle:@"Submit" style:UIBarButtonItemStylePlain target:self action:@selector(submitButtonClicked:)];
+    }
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc]initWithTitle:@"Cancel" style:UIBarButtonItemStylePlain target:self action:@selector(cancelButtonClicked:)];
    	
 }
--(void)viewWillAppear:(BOOL)animated{
+- (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     [self.navigationItem setHidesBackButton:YES];
     [self setTitle:@"Employee Detail"];
@@ -79,7 +87,7 @@
     self.companyAddressTextView.delegate = self;
     datePicker = [[UIDatePicker alloc] init];
     self.dateOfBirthTextField.inputView = datePicker;
-    
+    self.companyDetailArray = [[NSMutableArray alloc] init];
     [self hideAllInvalidAlerts];
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc]
                                    initWithTarget:self
@@ -93,25 +101,47 @@
         [self.companyAddressTextView setEditable:NO];
         [self.addressTextView setEditable:NO];
     }
+    [self hideCompanyDetail];
     self.contentOffsetHeight = self.scrollView.frame.size.height;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(validateFields) name:UITextFieldTextDidChangeNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(validateFields) name:UITextViewTextDidChangeNotification object:nil];
     
 }
 
--(void)viewWillDisappear:(BOOL)animated{
+- (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UITextFieldTextDidChangeNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UITextViewTextDidChangeNotification object:nil];
     
 }
 
--(void)viewDidAppear:(BOOL)animated{
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
     
-    [self.submitButton setEnabled:NO];
+    self.companyListTableView.autoresizingMask = UIViewAutoresizingFlexibleHeight;
+    self.addCompanyOption.target = self;
+    self.addCompanyOption.action = @selector(toggleCompanyOptions:);
+    if([self.companyDetailArray count] == 0) {
+        [self.companyListTableView setHidden:YES];
+    }
+    else {
+        [self.companyListTableView setHidden:NO];
+        
+        CGRect tableViewFrame = self.companyListTableView.frame;
+        tableViewFrame.size.height = MIN([self.companyDetailArray count] * 44,176.f );
+        
+        
+        [self.companyListTableView setFrame:tableViewFrame];
+        self.tableHeightConstraint.constant = MIN([self.companyDetailArray count]*44.0 , 176.0);
+        [self.companyListTableView needsUpdateConstraints];
+
+    }
+   
+
+    [self.companyListTableView setTableFooterView:[[UIView alloc]initWithFrame:CGRectZero]];
     [self.addButton setEnabled:NO];
     [self.addButton setAlpha:0.1];
-    self.companyDetailArray = [[NSMutableArray alloc] init];
+    
     if(self.isForAddingNewEmployee == NO){
         
         self.firstNameTextField.text =  self.employeeData.empFirstName ;
@@ -120,12 +150,14 @@
         self.addressTextView.text = self.employeeData.empAddress ;
         CompanyDetail *companydetail = [[CompanyDetail alloc]init];
         self.companyDetailArray =  [companydetail reverseTransformedValue:self.employeeData.companyDetail];
-        [self.companyListTableView reloadData];
+
+    }
+    else {
+        [self.navigationItem.rightBarButtonItem setEnabled:NO];
     }
 }
 
-- (void)didReceiveMemoryWarning
-{
+- (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
@@ -141,18 +173,45 @@
 }
 
 
--(void)enableFieldsForEdit:(id)sender{
-    [self.navigationItem.rightBarButtonItem setEnabled:NO];
-    [self.firstNameTextField setEnabled:YES];
-    [self.lastNameTextField setEnabled:YES];
-    [self.dateOfBirthTextField setEnabled:YES];
-    [self.companyNameTextField setEnabled:YES];
-    [self.companyAddressTextView setEditable:YES];
-    [self.addressTextView setEditable:YES];
+- (void)enableFieldsForEdit:(id)sender {
+    if(!self.isEdited) {
+        self.isEdited = YES;
+        [self.navigationItem.rightBarButtonItem setTitle:@"Submit"];
+        [self.navigationItem.rightBarButtonItem setEnabled:NO];
+        [self.firstNameTextField setEnabled:YES];
+        [self.lastNameTextField setEnabled:YES];
+        [self.dateOfBirthTextField setEnabled:YES];
+        [self.companyNameTextField setEnabled:YES];
+        [self.companyAddressTextView setEditable:YES];
+        [self.addressTextView setEditable:YES];
+    }
+    else {
+        [self submitButtonClicked:nil];
+    }
+    
+    
+}
+- (void)toggleCompanyOptions:(id)sender {
+    BOOL option = [self.addCompanyOption isEnabled];
+    NSLog(@"option =%d", option);
+    [self.addCompanyOption setEnabled:NO];
+    [self.companyNameTextField setHidden:NO];
+    [self.companyAddressTextView setHidden:NO];
+    [self.companyAddressLabel setHidden:NO];
+    [self.addCompanyLabel setHidden:NO];
+    [self.addButton setHidden:NO];
     
 }
 
+-(void) hideCompanyDetail {
+    [self.addCompanyOption setEnabled:YES];
+    [self.companyNameTextField setHidden:YES];
+    [self.companyAddressTextView setHidden:YES];
+    [self.companyAddressLabel setHidden:YES];
+    [self.addCompanyLabel setHidden:YES];
+    [self.addButton setHidden:YES];
 
+}
 
 
 #pragma mark - UITextField Delegate Methods
@@ -267,18 +326,18 @@
 }
 
 
--(void)textFieldDidEndEditing:(UITextField *)textField{
-    
+- (void)textFieldDidEndEditing:(UITextField *)textField {
     self.contentOffsetHeight = self.scrollView.frame.size.height;
     [textField resignFirstResponder];
 }
 
 -(void)bringTextFieldVisible:(id)field {
     CGRect textFieldRect;
-    if([field isKindOfClass:[UITextField class]]){
+    if([field isKindOfClass:[UITextField class]]) {
         UITextField *textField = (UITextField *)field;
         textFieldRect = textField.frame;
-    }else{
+    }
+    else {
         UITextView *textView = (UITextView *)field;
         textFieldRect = textView.frame;
     }
@@ -287,7 +346,7 @@
     CGRect scrollViewFrame = self.scrollView.frame;
     CGFloat heightDifference = scrollViewFrame.size.height - (textFieldRect.origin.y + textFieldRect.size.height);
     
-    if( heightDifference <= kOFFSET_FOR_KEYBOARD){
+    if( heightDifference <= kOFFSET_FOR_KEYBOARD) {
         self.contentOffsetHeight += kOFFSET_FOR_KEYBOARD - heightDifference;
         [self.scrollView setContentOffset:CGPointMake(0,  kOFFSET_FOR_KEYBOARD - heightDifference) animated:YES];
         
@@ -298,18 +357,18 @@
 
 #pragma mark - UITextView Delegate Methods
 
--(void)textViewDidBeginEditing:(UITextView *)textView{
+- (void)textViewDidBeginEditing:(UITextView *)textView {
     [self bringTextFieldVisible:textView];
 }
 
--(void)textViewDidEndEditing:(UITextView *)textView{
+- (void)textViewDidEndEditing:(UITextView *)textView {
     self.contentOffsetHeight = self.scrollView.frame.size.height;
        
 }
 
 
 #pragma mark - UIDatePicker Methods
--(void) dateChosen:(UIBarButtonItem *) barButton {
+- (void) dateChosen:(UIBarButtonItem *) barButton {
     if(barButton.tag ==123){
         [dateView removeFromSuperview];
         
@@ -317,38 +376,40 @@
    
 }
 
--(void)dateChanged{
+- (void)dateChanged {
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
     dateFormatter = [[NSDateFormatter alloc] init];
     [dateFormatter setDateFormat:@"dd/MM/yyyy"];
     self.dateOfBirthTextField.text = [dateFormatter stringFromDate:[datePicker date]];
 }
 
--(BOOL)closeDatePicker:(id)sender{
+- (BOOL)closeDatePicker:(id)sender {
     [pickerViewActionSheet dismissWithClickedButtonIndex:0 animated:YES];
     [self.dateOfBirthTextField resignFirstResponder];
     return YES;
 }
 
--(void)doneButtonClicked{
+- (void)doneButtonClicked {
     [self closeDatePicker:self];
 }
 
 #pragma mark - Validation Method
--(void)validateFields{
-    if(![self.firstNameTextField.text isEqualToString:@""] && ![self.lastNameTextField.text isEqualToString:@""] && ![self.dateOfBirthTextField.text isEqualToString:@""]&& ![self.addressTextView.text isEqualToString:@""]&&[self.companyNameTextField.text isEqualToString:@""] && [self.companyAddressTextView.text isEqualToString:@""]){
-        [self.submitButton setEnabled:YES];
+- (void)validateFields {
+    if (![self.firstNameTextField.text isEqualToString:@""] && ![self.lastNameTextField.text isEqualToString:@""] && ![self.dateOfBirthTextField.text isEqualToString:@""] && ![self.addressTextView.text isEqualToString:@""] && [self.companyNameTextField.text isEqualToString:@""] && [self.companyAddressTextView.text isEqualToString:@""]) {
+        [self.navigationItem.rightBarButtonItem setEnabled:YES];
+        
+//        [self.submitButton setEnabled:YES];
         [self.addButton setEnabled:NO];
         [self.addButton setAlpha:0.2];
     }
-    
-    else if(![self.companyNameTextField.text isEqualToString:@""] && ![self.companyAddressTextView.text isEqualToString:@""]){
+    else if(![self.companyNameTextField.text isEqualToString:@""] && ![self.companyAddressTextView.text isEqualToString:@""]) {
         [self.addButton setEnabled:YES];
         [self.addButton setAlpha:1.0];
         
     }
-    else{
-        [self.submitButton setEnabled:NO];
+    else {
+        [self.navigationItem.rightBarButtonItem setEnabled:NO];
+//        [self.submitButton setEnabled:NO];
         [self.addButton setEnabled:NO];
         [self.addButton setAlpha:0.2];
         
@@ -357,14 +418,14 @@
     
 }
 
--(BOOL)checkForOnlyString:(NSString *) string{
+- (BOOL)checkForOnlyString:(NSString *) string {
     NSString *nameRegularExpression = @"[a-zA-Z\" \"]*$";
     NSPredicate *nameValidation = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", nameRegularExpression];
     BOOL isValid = [nameValidation evaluateWithObject:string];
     return isValid;
 }
 
--(void) hideAllInvalidAlerts {
+- (void) hideAllInvalidAlerts {
     self.invalidAlertFirstNameLabel.hidden = YES;
     self.invalidAlertLastNameLabel.hidden = YES;
     self.invalidAlertDOBLabel.hidden = YES;
@@ -372,7 +433,7 @@
 }
 
 
--(void)dismissKeyboard {
+- (void)dismissKeyboard {
     for(UIView *views in self.scrollView.subviews){
         if(([views isKindOfClass:[UITextField class]] ||[views
                                                          isKindOfClass:[UITextView class]]) && [views isFirstResponder]){
@@ -385,7 +446,7 @@
     }
 }
 
--(void)styleTextView {
+- (void)styleTextView {
     [[self.addressTextView layer] setBorderColor:[[UIColor grayColor] CGColor]];
     [[self.addressTextView layer] setBorderWidth:0.2];
     [[self.addressTextView layer] setCornerRadius:5];
@@ -393,6 +454,10 @@
     [[self.companyAddressTextView layer] setBorderColor:[[UIColor grayColor] CGColor]];
     [[self.companyAddressTextView layer] setBorderWidth:0.2];
     [[self.companyAddressTextView layer] setCornerRadius:5];
+    
+    [[self.companyListTableView layer] setBorderColor:[[UIColor grayColor] CGColor]];
+    [[self.companyListTableView layer] setBorderWidth:0.2];
+    [[self.companyListTableView layer] setCornerRadius:5];
 }
 
 
@@ -403,32 +468,31 @@
 - (IBAction)addCompanyButtonClicked:(id)sender {
     NSMutableArray *companyDetail = [[NSMutableArray alloc] initWithObjects:self.companyNameTextField.text, self.companyAddressTextView.text, nil];
     [self.companyDetailArray addObject:companyDetail];
-//    [self.employeeData.companyDetail addObject:companyDetail];
+    [self.companyListTableView setHidden:NO];
+    [self viewDidAppear:NO];
     [self.companyListTableView reloadData];
+    
+    
+    
     [self.companyNameTextField setText:nil];
     [self.companyAddressTextView setText:nil];
     
     [self validateFields];
-   
+    [self toggleCompanyOptions:nil];
     
 }
 
-- (IBAction)submitButtonClicked:(id)sender {
+- (void)submitButtonClicked:(id)sender {
     
     NSManagedObjectContext *context = [self managedObjectContext];
+
     //To avoid posting the same data multiple times.
-    [self.submitButton setEnabled:NO];
-    
+    [self.navigationItem.rightBarButtonItem setEnabled:NO];
     //Get the local data to post into the global/server data
-//    Employee *employee = [[Employee alloc]init];
-//    employee.empFirstName = self.firstNameTextField.text;
-//    employee.empLastName = self.lastNameTextField.text;
-//    employee.empDOB = self.dateOfBirthTextField.text;
-//    employee.empAddress = self.addressTextView.text;
-//    employee.companyDetail = [[self.employeeData companyDetail] mutableCopy];// [self.employeeData.companyDetail mutableCopy];
+ 
     
     //If the submit is for new employee add, otherwise update.
-    if(self.isForAddingNewEmployee == YES){
+    if(self.isForAddingNewEmployee == YES) {
         NSManagedObject *newEmployee = [NSEntityDescription insertNewObjectForEntityForName:@"Employees" inManagedObjectContext:context];
         [newEmployee setValue:self.firstNameTextField.text forKeyPath:@"empFirstName"];
         [newEmployee setValue:self.lastNameTextField.text forKeyPath:@"empLastName"];
@@ -436,17 +500,9 @@
         [newEmployee setValue:self.addressTextView.text forKeyPath:@"empAddress"];
          CompanyDetail *companyDetail = [[CompanyDetail alloc]init];
         [newEmployee setValue:[companyDetail transformedValue:self.companyDetailArray] forKeyPath:@"companyDetail"];
-//        newEmployee.empFirstName = self.firstNameTextField.text;
-//        newEmployee.empLastName = self.lastNameTextField.text;
-//        newEmployee.empDOB = self.dateOfBirthTextField.text;
-//        newEmployee.empAddress = self.addressTextView.text;
-//       
-//        newEmployee.companyDetail = [companyDetail transformedValue:self.companyDetailArray];
-       
         
     }
-
-    else{
+    else {
         [self.employeeData setValue:self.firstNameTextField.text forKey:@"empFirstName"];
         [self.employeeData setValue:self.lastNameTextField.text forKey:@"empLastName"];
         [self.employeeData  setValue:self.dateOfBirthTextField.text forKey:@"empDOB"];
@@ -459,12 +515,11 @@
     
     NSError *error = nil;
     // Save the object to persistent store
-    if (![context save:&error])
-    {
+    if (![context save:&error]) {
         NSLog(@"Can't Save! %@ %@", error, [error localizedDescription]);
     }
 
-    if(self.navigationController){
+    if (self.navigationController) {
         self.navigationController.delegate=nil;
         [self.navigationController popViewControllerAnimated:YES];
     }
@@ -477,32 +532,28 @@
 }
 
 #pragma mark - TableView Datasource Methods
--(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     return [self.companyDetailArray count] ;
 }
--(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     return 1;
 }
 
--(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     static NSString *CellIdentifier = @"companyDetailCell";
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"companyDetailCell" forIndexPath:indexPath];
-    
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
     if (cell == nil) {
         cell = [[UITableViewCell alloc]initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:CellIdentifier];
     }
     cell.textLabel.text = [[self.companyDetailArray objectAtIndex:indexPath.row] objectAtIndex:0];
-//    cell.textLabel.text = [[self.employeeData.companyDetail objectAtIndex:indexPath.row] objectAtIndex:0];
     cell.detailTextLabel.text = [[self.companyDetailArray objectAtIndex:indexPath.row] objectAtIndex:1];
-//    cell.detailTextLabel.text = [[self.employeeData.companyDetail objectAtIndex:indexPath.row] objectAtIndex:1];
-    
     return cell;
     
 }
 
 #pragma mark - TableView Delegate Method
--(void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath{
-    if(editingStyle == UITableViewCellEditingStyleDelete){
+- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
+    if (editingStyle == UITableViewCellEditingStyleDelete) {
        [self.companyDetailArray removeObjectAtIndex:indexPath.row];
 //        [self.employeeData.companyDetail removeObjectAtIndex:indexPath.row];
         [self.companyListTableView reloadData];
@@ -511,6 +562,7 @@
 
 - (NSManagedObjectContext *)managedObjectContext {
     NSManagedObjectContext *context = nil;
+    [context setRetainsRegisteredObjects:YES];
     id delegate = [[UIApplication sharedApplication] delegate];
     if ([delegate performSelector:@selector(managedObjectContext)]) {
         context = [delegate managedObjectContext];
