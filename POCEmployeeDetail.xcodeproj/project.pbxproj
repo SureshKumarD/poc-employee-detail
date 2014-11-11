@@ -21,6 +21,7 @@
 		F9687A911A00B8CA000D1CBA /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F9687A731A00B8CA000D1CBA /* UIKit.framework */; };
 		F9687A991A00B8CA000D1CBA /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = F9687A971A00B8CA000D1CBA /* InfoPlist.strings */; };
 		F9687A9B1A00B8CA000D1CBA /* POCEmployeeDetailTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F9687A9A1A00B8CA000D1CBA /* POCEmployeeDetailTests.m */; };
+		F97E7DA01A122E5B00243FFD /* addCompanyIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = F97E7D9F1A122E5B00243FFD /* addCompanyIcon.png */; };
 		F997380F1A0BA07C007FE2D0 /* EmployeeModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = F997380D1A0BA07C007FE2D0 /* EmployeeModel.xcdatamodeld */; };
 		F99738111A0BAFD2007FE2D0 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F99738101A0BAFD2007FE2D0 /* CoreData.framework */; };
 		F9BBFD5D1A0CD5BA00B0A9D5 /* CompanyDetail.m in Sources */ = {isa = PBXBuildFile; fileRef = F9BBFD5C1A0CD5BA00B0A9D5 /* CompanyDetail.m */; };
@@ -60,6 +61,7 @@
 		F9687A961A00B8CA000D1CBA /* POCEmployeeDetailTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "POCEmployeeDetailTests-Info.plist"; sourceTree = "<group>"; };
 		F9687A981A00B8CA000D1CBA /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		F9687A9A1A00B8CA000D1CBA /* POCEmployeeDetailTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = POCEmployeeDetailTests.m; sourceTree = "<group>"; };
+		F97E7D9F1A122E5B00243FFD /* addCompanyIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = addCompanyIcon.png; sourceTree = "<group>"; };
 		F997380E1A0BA07C007FE2D0 /* EmployeeModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = EmployeeModel.xcdatamodel; sourceTree = "<group>"; };
 		F99738101A0BAFD2007FE2D0 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		F9BBFD5B1A0CD5BA00B0A9D5 /* CompanyDetail.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CompanyDetail.h; sourceTree = "<group>"; };
@@ -157,6 +159,7 @@
 			children = (
 				F9687A771A00B8CA000D1CBA /* POCEmployeeDetail-Info.plist */,
 				F9687A781A00B8CA000D1CBA /* InfoPlist.strings */,
+				F97E7D9F1A122E5B00243FFD /* addCompanyIcon.png */,
 				F9687A7B1A00B8CA000D1CBA /* main.m */,
 				F9687A7D1A00B8CA000D1CBA /* POCEmployeeDetail-Prefix.pch */,
 			);
@@ -259,6 +262,7 @@
 			files = (
 				F9687A881A00B8CA000D1CBA /* Images.xcassets in Resources */,
 				F9687A7A1A00B8CA000D1CBA /* InfoPlist.strings in Resources */,
+				F97E7DA01A122E5B00243FFD /* addCompanyIcon.png in Resources */,
 				F9687A831A00B8CA000D1CBA /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

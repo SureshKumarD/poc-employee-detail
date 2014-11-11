@@ -5,12 +5,12 @@
 //  Created by Suresh on 03/11/14.
 //  Copyright (c) 2014 Neev. All rights reserved.
 //
-
+#import <CoreData/CoreData.h>
 #import "EmployeesTableViewController.h"
 #import "DataManager.h"
 #import "Employee.h"
 #import "ViewController.h"
-#import <CoreData/CoreData.h>
+#import "PrefixHeader.pch"
 
 @interface EmployeesTableViewController ()<UITableViewDataSource, UITableViewDelegate>
 @property(nonatomic,strong) NSMutableArray *companyDetails;
@@ -18,30 +18,30 @@
 
 @implementation EmployeesTableViewController
 @synthesize employees = _employees;
-- (id)initWithStyle:(UITableViewStyle)style
-{
+
+
+- (id)initWithStyle:(UITableViewStyle)style {
     self = [super initWithStyle:style];
     if (self) {
         // Custom initialization
+        //Nothing to initialize as of now.
     }
     return self;
 }
 
-- (void)viewDidLoad
-{
+
+- (void)viewDidLoad {
     [super viewDidLoad];
     self.tableView.delegate = self;
-    
     // Uncomment the following line to preserve selection between presentations.
-       self.clearsSelectionOnViewWillAppear = NO;
+    self.clearsSelectionOnViewWillAppear = NO;
     
-    // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-    // self.navigationItem.rightBarButtonItem = self.editButtonItem;
-   
 }
--(void) viewWillAppear:(BOOL)animated{
+
+
+- (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:NO];
-        self.navigationController.navigationBar.hidden = NO;
+    self.navigationController.navigationBar.hidden = NO;
     NSManagedObjectContext *managedObjectContext = [self managedObjectContext];
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Employees"];
     self.employees = [[managedObjectContext executeFetchRequest:fetchRequest error:nil] mutableCopy];
@@ -49,29 +49,41 @@
 
 }
 
--(void)viewDidAppear:(BOOL)animated{
+
+- (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-   
+    if([self.employees count] == 0) {
+        UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:@"Employee List" message:NO_RECORD_AVAILABLE delegate:nil cancelButtonTitle:nil otherButtonTitles:nil];
+        [alertView show];
+        [self performSelector:@selector(dismissAlertMessage:) withObject:alertView afterDelay:3.0];
+    }
     
 }
-- (void)didReceiveMemoryWarning
+
+
+-(void)dismissAlertMessage:(UIAlertView*)alertView
 {
+    [alertView dismissWithClickedButtonIndex:0 animated:YES];
+}
+
+
+- (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
 
+
 #pragma mark - Table view data source
 
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
-{
-//#warning Potentially incomplete method implementation.
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    //#warning Potentially incomplete method implementation.
     // Return the number of sections.
     return 1;
 }
 
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
-{
-//#warning Incomplete method implementation.
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    //#warning Incomplete method implementation.
     // Return the number of rows in the section.
     return [self.employees count];
 }
@@ -79,27 +91,23 @@
 
 #pragma mark - Table view delegate methods
 
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
-{
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
     static NSString *CellIdentifier = @"employeeCellIdentifier";
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"employeeCellIdentifier" forIndexPath:indexPath];
-    
     if (cell == nil) {
         cell = [[UITableViewCell alloc]initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:CellIdentifier];
     }
     Employee *employee = [self.employees objectAtIndex:indexPath.row];
     cell.textLabel.text = [employee valueForKey:@"empFirstName"];
     cell.detailTextLabel.text = [employee valueForKey:@"empAddress"];
-    
     return cell;
-    
 }
 
--(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     UIStoryboard *storyBoard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
     ViewController *viewController = [storyBoard instantiateViewControllerWithIdentifier:@"viewController"];
-
     viewController.employeeEntryIndex = [indexPath row];
     viewController.isForAddingNewEmployee = NO;
     viewController.employeeData = [self.employees objectAtIndex:indexPath.row];
@@ -149,25 +157,23 @@
 #pragma mark - Navigation
 
 // In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
-{
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
     ViewController *viewController = segue.destinationViewController;
     if([segue.identifier isEqualToString:@"addNewEmployee"])
         viewController.isForAddingNewEmployee = YES;
-    
 }
 
 
-- (NSManagedObjectContext *)managedObjectContext
-{
+- (NSManagedObjectContext *)managedObjectContext {
     NSManagedObjectContext *context = nil;
     id delegate = [[UIApplication sharedApplication] delegate];
-    if ([delegate performSelector:@selector(managedObjectContext)])
-    {
+    if ([delegate performSelector:@selector(managedObjectContext)]) {
         context = [delegate managedObjectContext];
     }
     return context;
 }
+
+
 @end
